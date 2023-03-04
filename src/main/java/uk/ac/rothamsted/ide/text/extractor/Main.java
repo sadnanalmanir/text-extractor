@@ -105,6 +105,7 @@ public class Main {
                     int numOfFilesProcessed = 0;
 
                     TextExtractor textExtractor = new TextExtractor();
+                    EncodingCleaner encodingCleaner = new EncodingCleaner();
 
                     for (String fileName : fileIndex.keySet()) {
                         if (processOnlyDocuments.size() > 1 && !processOnlyDocuments.contains(fileName)) {
@@ -118,11 +119,16 @@ public class Main {
                                 + "\n===============================================================\n");
 
                         String extractedText = textExtractor.extractText(fileIndex.get(fileName));
+                        // Clean encoding (bad and non-ASCII characters).
+                        String cleanText = EncodingCleaner.cleanEncoding(extractedText);
+
+
+                        cleanText = cleanText.replaceAll("\\\\", " ");
 
                         logger.info("Text extraction time for document took " + (System.currentTimeMillis() - time) / 1000 + " seconds = " + (System.currentTimeMillis() - time) / 1000 / 60 + " minutes\n");
 
                         if (outputDir != null) {
-                            Utils.saveToFile(extractedText, outputDir + "/" + fileName + ".txt");
+                            Utils.saveToFile(cleanText, outputDir + "/" + fileName + ".txt");
                         }
                     }
                     logger.info("Total time for text extraction took " + (System.currentTimeMillis() - time) / 1000 + " seconds");
